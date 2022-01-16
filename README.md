@@ -22,13 +22,17 @@ yarn add underflag-redis
 Import the underflag and prepare to load data provider
 
 ```js
-import { Underflag } from "underflag";
-import { RedisDataProvider } from "underflag-redis";
+import { Underflag, JsonDataProviders } from "underflag";
+import { RedisCacheProvider } from "underflag-redis";
 import redis from 'redis';
 
+const client = createClient();
+await client.connect();
+const cacheProvider = new RedisCacheProvider({ client, lifetime: 60 });
+
 await redis.connect();
-const dataProvider = new RedisDataProvider();
-const underflag = new Underflag({ dataProvider });
+const dataProvider = new JsonDataProvider({ data: { feature: true }});
+const underflag = new Underflag({ dataProvider, cacheProvider });
 if (await underflag.isOn("feature")) {
     // ...
 }
