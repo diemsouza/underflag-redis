@@ -1,4 +1,4 @@
-import { ICacheProvider, CacheModel } from 'underflag';
+import { ICacheProvider, DataModel } from 'underflag';
 
 interface Options {
     /** A client instance to Redis */
@@ -14,11 +14,11 @@ export class RedisCacheProvider implements ICacheProvider {
         this.client = options.client;
         this.lifetime = options.lifetime || 3600;
     }
-    async get(key: string): Promise<CacheModel | undefined> {
+    async get(key: string): Promise<DataModel | undefined> {
         const result = await this.client.get(key);
         return result ? { key, value: JSON.parse(result) } : undefined;
     }
-    async set(data: CacheModel): Promise<void> {
+    async set(data: DataModel): Promise<void> {
         await this.client.set(data.key, JSON.stringify(data.value), { EX: this.lifetime });
     }
 }
