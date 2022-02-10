@@ -1,6 +1,5 @@
-import { Underflag, JsonDataProvider, isOn } from 'underflag';
-import { RedisCacheProvider } from '../../src/providers/RedisCacheProvider';
-import { createClient } from 'redis';
+import { Underflag, isOn } from 'underflag';
+import { createCacheProvider } from '../../src/providers/RedisCacheProvider';
 import config from './config.json';
 import objData from './object.json';
 
@@ -15,19 +14,9 @@ const print = async (feature: Underflag, key: string) => {
 };
 
 (async () => {
-    // config data provider
-
-
-    // config cache provider
-    const client = createClient({
-        url: config.redisUrl
-    });
-    await client.connect();
-
     // use data and cache provider
-    const dataProvider = new JsonDataProvider({ data: objData });
-    const cacheProvider = new RedisCacheProvider({ client, lifetime: 60 });
-    const underflag = new Underflag({ dataProvider, cacheProvider });
+    const cacheProvider = await createCacheProvider({ lifetime: 30 });
+    const underflag = new Underflag({ dataProvider: objData, cacheProvider });
 
     // check flags
     const list: any[] = [];
@@ -36,6 +25,5 @@ const print = async (feature: Underflag, key: string) => {
     }
     list.push(await print(underflag, 'other'));
     console.table(list);
-
-    client.disconnect();
+    process.exit(0)
 })();
