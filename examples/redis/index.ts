@@ -1,5 +1,5 @@
-import { Underflag, isOn } from 'underflag';
-import { createCacheProvider } from '../../src/providers/RedisCacheProvider';
+import { Underflag } from 'underflag';
+import { RedisCacheProvider } from '../../src/providers/RedisCacheProvider';
 import config from './config.json';
 import objData from './object.json';
 
@@ -7,7 +7,7 @@ const print = async (feature: Underflag, key: string) => {
     const data = await feature.getFeature(key);
     return {
         key,
-        status: isOn(data) ? 'on' : 'off',
+        status: data?.isOn() ? 'on' : 'off',
         value: data?.value,
         origin: data?.origin
     };
@@ -15,7 +15,7 @@ const print = async (feature: Underflag, key: string) => {
 
 (async () => {
     // use data and cache provider
-    const cacheProvider = await createCacheProvider({ lifetime: 30 });
+    const cacheProvider = new RedisCacheProvider({ lifetime: 30 });
     const underflag = new Underflag({ dataProvider: objData, cacheProvider });
 
     // check flags
